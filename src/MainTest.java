@@ -7,8 +7,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import products.InvalidRatingException;
@@ -30,29 +33,22 @@ class MainTest {
 
     @Test
     void safeDivideTest() {
-        outputStreamCaptor.reset();
-        Main.safeDivide(12, 3);
-        Assertions.assertEquals("Результат деления 12 на 3: 4", outputStreamCaptor.toString().trim());
+        Assertions.assertEquals(4, Main.safeDivide(12, 3));
 
-        outputStreamCaptor.reset();
-        Main.safeDivide(12, 0);
-        Assertions.assertEquals("Деление на ноль запрещено", outputStreamCaptor.toString().trim());
+        Assertions.assertThrows(ArithmeticException.class, () -> Main.safeDivide(12, 0));
     }
 
     @Test
     void checkStringArgumentTest() {
-        String string = "Привет, Мир!";
         outputStreamCaptor.reset();
         Main.checkStringArgument("Hello, World!");
         Assertions.assertEquals("Строка \"Hello, World!\" - допустимый аргумент", outputStreamCaptor.toString().trim());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Main.checkStringArgument("");
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Main.checkStringArgument(""));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Main.checkStringArgument("    ");
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Main.checkStringArgument("    "));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Main.checkStringArgument(null));
     }
 
     @Test
@@ -61,9 +57,7 @@ class MainTest {
         Main.setAge(25);
         Assertions.assertEquals("Установлен возраст: 25", outputStreamCaptor.toString().trim());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            Main.setAge(-10);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> Main.setAge(-10));
     }
 
     @Test
@@ -76,9 +70,7 @@ class MainTest {
         }
         Assertions.assertEquals("Депозит на сумму 2000.0 обработан", outputStreamCaptor.toString().trim());
 
-        Assertions.assertThrows(NegativeDepositException.class, () -> {
-            Main.deposit(-3000);
-        });
+        Assertions.assertThrows(NegativeDepositException.class, () -> Main.deposit(-3000));
     }
 
     @Test
@@ -87,41 +79,24 @@ class MainTest {
 
         Assertions.assertEquals("Мандарин", products.getItem("Mandarin").getName());
 
-        Assertions.assertThrows(ItemNotFoundException.class, () -> {
-            products.getItem("Papaya");
-        });
+        Assertions.assertThrows(ItemNotFoundException.class, () -> products.getItem("Papaya"));
 
-        Assertions.assertThrows(ItemNotFoundException.class, () -> {
-            products.getItem(null);
-        });
+        Assertions.assertThrows(ItemNotFoundException.class, () -> products.getItem(null));
 
-        Assertions.assertThrows(ItemNotFoundException.class, () -> {
-            products.getItem("   ");
-        });
+        Assertions.assertThrows(ItemNotFoundException.class, () -> products.getItem("   "));
 
-        Assertions.assertThrows(ItemNotFoundException.class, () -> {
-            products.getItem("\t\n\r\f ");
-        });
+        Assertions.assertThrows(ItemNotFoundException.class, () -> products.getItem("\t\n\r\f "));
     }
 
     @Test
     void readFile() {
-        outputStreamCaptor.reset();
-        Main.readFile("src/sampleText.txt");
-        Assertions.assertEquals("""
-                Раз
-                Два
-                Три
-                Четыре
-                Пять
-                Вышел
-                Зайчик
-                Погулять""", outputStreamCaptor.toString().trim());
+        try {
+            Assertions.assertEquals(new ArrayList<>(List.of("Раз", "Два", "Три", "Четыре", "Пять", "Вышел", "Зайчик", "Погулять")), Main.readFile("src/sampleText.txt"));
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
 
-        outputStreamCaptor.reset();
-        String path2 = "src/sampleText2.txt";
-        Main.readFile(path2);
-        Assertions.assertEquals(path2.replace('/', '\\') + " (Не удается найти указанный файл)", outputStreamCaptor.toString().trim());
+        Assertions.assertThrows(IOException.class, () -> Main.readFile("src/sampleText2.txt"));
     }
 
     @Test
@@ -136,17 +111,11 @@ class MainTest {
         }
         Assertions.assertEquals("Успешная аутентификация!", outputStreamCaptor.toString().trim());
 
-        Assertions.assertThrows(LoginFailedException.class, () -> {
-            authentication.login("Sam", "ytrewq");
-        });
+        Assertions.assertThrows(LoginFailedException.class, () -> authentication.login("Sam", "ytrewq"));
 
-        Assertions.assertThrows(LoginFailedException.class, () -> {
-            authentication.login(null, "ytrewq");
-        });
+        Assertions.assertThrows(LoginFailedException.class, () -> authentication.login(null, "ytrewq"));
 
-        Assertions.assertThrows(LoginFailedException.class, () -> {
-            authentication.login("Sam", null);
-        });
+        Assertions.assertThrows(LoginFailedException.class, () -> authentication.login("Sam", null));
     }
 
     @Test
@@ -154,21 +123,13 @@ class MainTest {
         Accounts accounts = new Accounts(new HashMap<>(Map.of( "001", 100.0, "002", 200.0, "003",300.0, "004", 400.0)));
 
         outputStreamCaptor.reset();
-        Assertions.assertThrows(InvalidTransferAmountException.class, () -> {
-            accounts.transfer("001", "002", -50.0);
-        });
+        Assertions.assertThrows(InvalidTransferAmountException.class, () -> accounts.transfer("001", "002", -50.0));
 
-        Assertions.assertThrows(InsufficientBalanceException.class, () -> {
-            accounts.transfer("001", "002", 150.0);
-        });
+        Assertions.assertThrows(InsufficientBalanceException.class, () -> accounts.transfer("001", "002", 150.0));
 
-        Assertions.assertThrows(UnknownAccount.class, () -> {
-            accounts.transfer("321", "002", 150.0);
-        });
+        Assertions.assertThrows(UnknownAccount.class, () -> accounts.transfer("321", "002", 150.0));
 
-        Assertions.assertThrows(UnknownAccount.class, () -> {
-            accounts.transfer("001", "222", 150.0);
-        });
+        Assertions.assertThrows(UnknownAccount.class, () -> accounts.transfer("001", "222", 150.0));
 
         outputStreamCaptor.reset();
         try {
@@ -183,13 +144,9 @@ class MainTest {
     void rateProductTest() {
         Products products = new Products(new HashMap<>(Map.of( "Pineapple", "Ананас", "Orange", "Апельсин", "Banana","Банан", "Mandarin", "Мандарин", "Mango", "Манго")));
 
-        Assertions.assertThrows(InvalidRatingException.class, () -> {
-            products.getItem("Pineapple").rateProduct("-1");
-        });
+        Assertions.assertThrows(InvalidRatingException.class, () -> products.getItem("Pineapple").rateProduct("-1"));
 
-        Assertions.assertThrows(InvalidRatingException.class, () -> {
-            products.getItem("Pineapple").rateProduct("8");
-        });
+        Assertions.assertThrows(InvalidRatingException.class, () -> products.getItem("Pineapple").rateProduct("8"));
 
         outputStreamCaptor.reset();
         try {

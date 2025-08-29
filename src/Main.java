@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.FileReader;
 
@@ -23,9 +24,21 @@ public class Main {
          * Напишите метод safeDivide(int a, int b), который возвращает a / b.
          * Если b == 0, перехватите исключение и выведите сообщение: "Деление на ноль запрещено".
          */
-        safeDivide(10, 2);
-        safeDivide(10, 0);
+        int a = 10;
+        int b = 2;
 
+        try {
+            System.out.printf("Результат деления %s на %s: %s\n", a, b, safeDivide(a, b));
+        } catch(ArithmeticException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        b = 0;
+        try {
+            System.out.printf("Результат деления %s на %s: %s\n", a, b, safeDivide(a, b));
+        } catch(ArithmeticException ex) {
+            System.out.println(ex.getMessage());
+        }
         /*
          * 2. Проверка строки
          * Напишите метод, который принимает строку и выбрасывает IllegalArgumentException,
@@ -47,6 +60,12 @@ public class Main {
 
         try {
             checkStringArgument("     ");
+        } catch (IllegalArgumentException ex) {
+            System.out.println(ex.getMessage());
+        }
+
+        try {
+            checkStringArgument(null);
         } catch (IllegalArgumentException ex) {
             System.out.println(ex.getMessage());
         }
@@ -147,12 +166,21 @@ public class Main {
         System.out.println();
 
         String path1 = "src/sampleText.txt";
-        System.out.printf("Содержимое файла \"%s\":\n", path1);
-        readFile(path1);
+
+        try {
+            System.out.printf("Содержимое файла \"%s\":\n", path1);
+            System.out.println(readFile(path1));
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
 
         String path2 = "src/sampleText2.txt";
-        System.out.printf("Содержимое файла \"%s\":\n", path2);
-        readFile(path2);
+        try {
+            System.out.printf("Содержимое файла \"%s\":\n", path2);
+            System.out.println(readFile(path2));
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
 
         /*
          * 8. Система логина
@@ -250,20 +278,15 @@ public class Main {
         }
     }
 
-    public static void safeDivide(int a, int b) {
-        try {
-            System.out.printf("Результат деления %s на %s: %s\n", a, b, a / b);
-        } catch(ArithmeticException ex) {
-            if (ex.getMessage().equals("/ by zero")) {
-                System.out.println("Деление на ноль запрещено");
-            } else {
-                System.out.println(ex.getMessage());
-            }
+    public static int safeDivide(int a, int b) {
+        if (b == 0) {
+            throw new ArithmeticException("Деление на ноль запрещено");
         }
+        return a / b;
     }
 
     public static void checkStringArgument(String string) throws IllegalArgumentException {
-        if (string.trim().isEmpty()) {
+        if (string == null || string.trim().isEmpty()) {
             throw new IllegalArgumentException("Строка пуста или состоит только из пробелов");
         }
 
@@ -286,19 +309,24 @@ public class Main {
         System.out.printf("Депозит на сумму %s обработан\n", amount);
     }
 
-    public static void readFile(String path) {
+    public static List<String> readFile(String path) throws FileNotFoundException, IOException {
+        List<String> stringList = new ArrayList<String>();
         StringBuilder bufferedReaderFile = new StringBuilder();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+        /*try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String line;
-
             while((line = br.readLine()) != null) {
-                bufferedReaderFile.append(line).append("\n");
+                stringList.add(line);
             }
-
-            System.out.println(bufferedReaderFile);
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
+        }*/
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        String line;
+        while((line = br.readLine()) != null) {
+            stringList.add(line);
         }
+
+        return stringList;
     }
 }
