@@ -28,14 +28,14 @@ public class Main {
         int b = 2;
 
         try {
-            System.out.printf("Результат деления %s на %s: %s\n", a, b, safeDivide(a, b));
+            System.out.printf("Результат деления %s на %s: %s\n", a, b, approximateSafeDivide(a, b));
         } catch(ArithmeticException ex) {
             System.out.println(ex.getMessage());
         }
 
         b = 0;
         try {
-            System.out.printf("Результат деления %s на %s: %s\n", a, b, safeDivide(a, b));
+            System.out.printf("Результат деления %s на %s: %s\n", a, b, approximateSafeDivide(a, b));
         } catch(ArithmeticException ex) {
             System.out.println(ex.getMessage());
         }
@@ -278,7 +278,7 @@ public class Main {
         }
     }
 
-    public static int safeDivide(int a, int b) {
+    public static int approximateSafeDivide(int a, int b) {
         if (b == 0) {
             throw new ArithmeticException("Деление на ноль запрещено");
         }

@@ -33,9 +33,9 @@ class MainTest {
 
     @Test
     void safeDivideTest() {
-        Assertions.assertEquals(4, Main.safeDivide(12, 3));
+        Assertions.assertEquals(4, Main.approximateSafeDivide(12, 3));
 
-        Assertions.assertThrows(ArithmeticException.class, () -> Main.safeDivide(12, 0));
+        Assertions.assertThrows(ArithmeticException.class, () -> Main.approximateSafeDivide(12, 0));
     }
 
     @Test
